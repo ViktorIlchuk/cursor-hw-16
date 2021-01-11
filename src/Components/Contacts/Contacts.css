@@ -1,0 +1,9 @@
+.Contacts,
+.searchInput{
+    width: 30%;
+    border: 1px solid lightgray;
+}
+
+.searchInput{
+    margin-bottom: 10px;
+}

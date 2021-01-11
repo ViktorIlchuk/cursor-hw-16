@@ -1,0 +1,12 @@
+.Contact{
+    border-bottom: 1px solid lightgrey;
+}
+
+.contactInfo{
+    display: flex;
+}
+
+.Contact > *,
+.contactInfo > *{
+    margin: 3px;
+}
