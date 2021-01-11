@@ -1,97 +1,52 @@
 import React, { Component } from 'react';
 import Contact from '../Contact/Contact';
+import contacts from './contactsData';
 import './Contacts.css';
 
 class Contacts extends Component{
     state = {
-        contacts: [{
-            firstName: "Барней",
-            lastName: "Стинсовський",
-            phone: "+380956319521",
-            gender: "male"
-        }, {
-            firstName: "Робін",
-            lastName: "Щербатська",
-            phone: "+380931460123",
-            gender: "female"
-        }, {
-            firstName: "Анонімний",
-            lastName: "Анонімус",
-            phone: "+380666666666"
-        }, {
-            firstName: "Лілія",
-            lastName: "Олдровна",
-            phone: "+380504691254",
-            gender: "female"
-        }, {
-            firstName: "Маршен",
-            lastName: "Еріксонян",
-            phone: "+380739432123",
-            gender: "male"
-        }, {
-            firstName: "Теодор",
-            lastName: "Мотсбес",
-            phone: "+380956319521",
-            gender: "male"
-        }],
+        contacts,
         search: '',
         filteredContacts: [],
         showMan: true,
         showWoman: true
     };
-
-    
-    handleSearchChange = () => {
-        const contacts = this.state.contacts;
-        const inputValue = this.state.search.toLowerCase();
-        
-        const filteredContacts = contacts
-            .filter(el => `${el.firstName}${el.lastName}${el.phone}`.toLowerCase().includes(inputValue));
-            
-        this.setState({filteredContacts})
-    };
     
     changeSearch = event => {
-        this.setState({search: event.target.value});
-        this.handleSearchChange();
+        this.setState({search: event.target.value.trim()});
     }
 
-    filterMan = () => {  
-        if(this.state.showMan){
-            const dataSource = this.state.filteredContacts.length ? this.state.filteredContacts : this.state.contacts;
-            const filteredContacts = dataSource.filter(el => el.gender !== 'male');    
-            this.setState({ filteredContacts })
-        }else{
-            this.setState({ filteredContacts: [] })
-        }
-        this.setState({showMan: !this.state.showMan})
-    }
-
-    filterWoman = () => {
-        if(this.state.showWoman){
-            const dataSource = this.state.filteredContacts.length ? this.state.filteredContacts : this.state.contacts;
-            const filteredContacts = dataSource.filter(el => el.gender !== 'female');    
-            this.setState({ filteredContacts })
-        }else{
-            this.setState({ filteredContacts: [] })
-        }
-        this.setState({showWoman: !this.state.showWoman})
-    }
-
-    dataHandler = () => this.state.filteredContacts.length > 0 ? this.state.filteredContacts : this.state.contacts;
     
+    dataHandler = () => {
+        let result = null;
+        if(this.state.showMan && this.state.showWoman) {
+            result = this.state.contacts;
+        }
+        else if(!this.state.showMan && !this.state.showWoman) {
+            result = this.state.contacts.filter( contact =>  contact.gender !== 'male' && contact.gender !== 'female')
+        }
+        else if(!this.state.showMan) {
+            result = this.state.contacts.filter( contact => 
+                this.state.showWoman && (contact.gender === 'female' || contact.gender === undefined))
+        }
+        else if(!this.state.showWoman) {
+            result = this.state.contacts.filter( contact => 
+                this.state.showMan && (contact.gender === 'male' || contact.gender === undefined))
+        }  
+        return result   
+    }
 
     render() {              
         return (
             <div>
                 <form>
-                    <input className='searchInput' onChange={this.changeSearch} type="text"/>
+                    <input className='searchInput' onChange={this.changeSearch} placeholder={'Enter search text...'} type="text"/>
                     <p>Gender:</p>
                     <label>
                         Man:
                         <input 
                             checked={this.state.showMan}
-                            onChange={this.filterMan}
+                            onChange={() => this.setState({showMan: !this.state.showMan})}
                             type="checkbox" 
                         />
                     </label>
@@ -99,13 +54,15 @@ class Contacts extends Component{
                         Woman:
                         <input 
                             checked={this.state.showWoman}
-                            onChange={this.filterWoman}
+                            onChange={() => this.setState({showWoman: !this.state.showWoman})}
                             type="checkbox" 
                         />
                     </label>
                 </form>
                 <div className='Contacts'>
-                    { this.dataHandler().map((contact, i) => <Contact {...contact} key={i} />)}
+                    {this.dataHandler().filter( contact => `${contact.firstName}${contact.lastName}${contact.phone}`.toLowerCase()
+                        .includes(this.state.search.toLowerCase()))
+                        .map( contact => <Contact {...contact} key={contact.phone} />)}
                 </div>
             </div>
         )
